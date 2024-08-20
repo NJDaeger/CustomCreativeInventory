@@ -1,0 +1,19 @@
+{
+  "itemGroups": [
+    {
+      "displayName": "Custom Group",
+      "registryKey": "custom_group",
+      "icon": "black_wool",
+      "location": "TOP",
+      "position": 0,
+      "entries": [
+        {
+          "itemName": "minecraft:stone"
+        },
+        {
+          "itemName": "minecraft:dirt"
+        }
+      ]
+    }
+  ]
+}
