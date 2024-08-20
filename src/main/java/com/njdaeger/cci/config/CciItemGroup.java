@@ -35,8 +35,8 @@ public class CciItemGroup {
         return registryKey;
     }
 
-    public RegistryKey<ItemGroup> getRegistryKey(int ordering) {
-        return RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of("cci", ordering + registryKey));
+    public RegistryKey<ItemGroup> getRegistryKey(String prefix) {
+        return RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of("cci", prefix + registryKey));
     }
 
     public Text getDisplayName() {

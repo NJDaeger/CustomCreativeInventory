@@ -2,22 +2,18 @@ package com.njdaeger.cci;
 
 import com.google.gson.Gson;
 import com.njdaeger.cci.config.CciConfig;
-import com.njdaeger.cci.config.CciItemGroupEntry;
 import com.njdaeger.cci.interfaces.IRegistryEntryReference;
 import com.njdaeger.cci.interfaces.ISimpleRegistryInjector;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
-import net.fabricmc.fabric.api.util.Item2ObjectMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
 import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.registry.tag.TagPacketSerializer;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.util.Identifier;
@@ -26,9 +22,9 @@ import net.minecraft.util.profiler.Profiler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.njdaeger.cci.CustomCreativeInventory.*;
@@ -67,6 +63,8 @@ public class ResourceReloadListener implements IdentifiableResourceReloadListene
                     customTags.clear();
                 }
 
+                AtomicInteger packNum = new AtomicInteger();
+
                 manager.streamResourcePacks().forEach(pack -> {
 
                     var cciDefinition = pack.openRoot("cci.json");
@@ -87,12 +85,16 @@ public class ResourceReloadListener implements IdentifiableResourceReloadListene
                                 return;
                             }
 
+                            AtomicInteger currentKey = new AtomicInteger(100);
+
                             config.getItemGroups().forEach(group -> {
 
-                                var key = group.getRegistryKey(customGroups.size());
+                                var prefix = packNum.get() + "_" + currentKey.getAndIncrement() + "_";
+
+                                var key = group.getRegistryKey(prefix);
                                 LOGGER.info("Adding custom group: {}", key.toString());
 
-                                var tag = TagKey.of(RegistryKeys.ITEM, Identifier.of("cci", customGroups.size() + group.getRegistryKeyName()));
+                                var tag = TagKey.of(RegistryKeys.ITEM, Identifier.of("cci", prefix + group.getRegistryKeyName()));
                                 ((ISimpleRegistryInjector<ItemGroup>)Registries.ITEM_GROUP).customCreativeInventory$addKey(key, group.createItemGroup(tag));
 
                                 customTags.add(tag);
@@ -101,6 +103,8 @@ public class ResourceReloadListener implements IdentifiableResourceReloadListene
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
+
+                        packNum.getAndIncrement();
                     }
                 });
 
