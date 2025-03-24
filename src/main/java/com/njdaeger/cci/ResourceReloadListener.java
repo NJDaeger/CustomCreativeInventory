@@ -17,7 +17,6 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.profiler.Profiler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class ResourceReloadListener implements IdentifiableResourceReloadListene
     }
 
     @Override
-    public CompletableFuture<Void> reload(Synchronizer synchronizer, ResourceManager manager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor) {
+    public CompletableFuture<Void> reload(Synchronizer synchronizer, ResourceManager manager, Executor prepareExecutor, Executor applyExecutor) {
         return CompletableFuture.supplyAsync(() -> null, prepareExecutor)
             .thenCompose(synchronizer::whenPrepared)
             .thenAcceptAsync(v -> {
@@ -109,8 +108,8 @@ public class ResourceReloadListener implements IdentifiableResourceReloadListene
                 });
 
                 var lookup = BuiltinRegistries.createWrapperLookup();
-                var itemGroupImpl = lookup.getOptionalWrapper(RegistryKeys.ITEM_GROUP);
-                var bannerPatternImpl = lookup.getOptionalWrapper(RegistryKeys.BANNER_PATTERN);
+                var itemGroupImpl = lookup.getOptional(RegistryKeys.ITEM_GROUP);
+                var bannerPatternImpl = lookup.getOptional(RegistryKeys.BANNER_PATTERN);
 
                 ItemGroups.updateDisplayContext(FeatureFlags.VANILLA_FEATURES, false, RegistryWrapper.WrapperLookup.of(Stream.of(itemGroupImpl.get(), bannerPatternImpl.get())));
 

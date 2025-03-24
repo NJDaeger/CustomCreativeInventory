@@ -5,23 +5,21 @@ import com.njdaeger.cci.interfaces.IRegistryEntryReference;
 import com.njdaeger.cci.interfaces.ISimpleRegistryInjector;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import net.minecraft.registry.MutableRegistry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryInfo;
-import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.entry.RegistryEntryOwner;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.List;
 import java.util.Map;
 
 @Mixin(SimpleRegistry.class)
-public abstract class SimpleRegistryMixin<T> implements ISimpleRegistryInjector<T> {
+public abstract class SimpleRegistryMixin<T> implements ISimpleRegistryInjector<T>, MutableRegistry<T> {
 
     @Shadow
     @Final
@@ -53,9 +51,6 @@ public abstract class SimpleRegistryMixin<T> implements ISimpleRegistryInjector<
     @Shadow
     private Lifecycle lifecycle;
 
-    @Shadow
-    public abstract RegistryEntryOwner<T> getEntryOwner();
-
     @Override
     public void customCreativeInventory$removeKey(RegistryKey<T> key) {
         var ref = this.keyToEntry.remove(key);
@@ -76,7 +71,7 @@ public abstract class SimpleRegistryMixin<T> implements ISimpleRegistryInjector<
         RegistryEntry.Reference<T> ref;
         if (this.intrusiveValueToEntry != null) {
             ref = this.intrusiveValueToEntry.remove(value);
-        } else ref = this.keyToEntry.computeIfAbsent(key, k -> RegistryEntry.Reference.standAlone(getEntryOwner(), k));
+        } else ref = this.keyToEntry.computeIfAbsent(key, k -> RegistryEntry.Reference.standAlone((RegistryEntryOwner<T>)this, k));
 
         ((IRegistryEntryReference<T>) ref).customCreativeInventory$overrideRegistryKey(key);
         ((IRegistryEntryReference<T>) ref).customCreativeInventory$overrideValue(value);
