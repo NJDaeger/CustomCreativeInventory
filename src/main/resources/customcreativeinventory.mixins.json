@@ -4,6 +4,7 @@
   "package": "com.njdaeger.cci.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ItemGroupMixin",
     "RegistryEntryMixin",
     "SimpleRegistryMixin"
   ],
