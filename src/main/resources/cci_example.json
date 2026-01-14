@@ -8,7 +8,18 @@
       "position": 0,
       "entries": [
         {
-          "itemName": "minecraft:stone"
+          "itemName": "minecraft:stone",
+          "customName": "Special Stone",
+          "blockState": {
+            "facing": "north",
+            "powered": "true"
+          },
+          "customModelData": {
+            "floats": [12.45, 67.89],
+            "flags": [true, false],
+            "strings": ["example", "data"],
+            "colors": ["#FF5733", "#33FF57"]
+          }
         },
         {
           "itemName": "minecraft:dirt"

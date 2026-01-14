@@ -3,6 +3,9 @@ package com.njdaeger.cci.config;
 
 import com.njdaeger.cci.interfaces.IRegistryEntryReference;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BlockStateComponent;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -13,6 +16,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.njdaeger.cci.CustomCreativeInventory.LOGGER;
@@ -57,10 +61,23 @@ public class CciItemGroup {
                 .icon(() -> new ItemStack(getIcon()))
                 .entries((displayContext, entries) -> {
                     for (CciItemGroupEntry entry : getEntries()) {
-                        var item = entry.getItem();
-                        ((IRegistryEntryReference<Item>)item.getRegistryEntry()).customCreativeInventory$addTag(tag);
+                        var stack =  entry.getItem().getDefaultStack();
+
+                        if (entry.getBlockState() != null)
+                            stack.set(DataComponentTypes.BLOCK_STATE, new BlockStateComponent(entry.getBlockState()));
+
+                        if (entry.getCustomModelData() != null)
+                            stack.set(DataComponentTypes.CUSTOM_MODEL_DATA, entry.getCustomModelData());
+
+                        if (entry.getCustomName() != null)
+                            stack.set(DataComponentTypes.ITEM_NAME, Text.of(entry.getCustomName()));
+
+                        if (entry.getItemModel() != null)
+                            stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of(entry.getItemModel()));
+
+                        ((IRegistryEntryReference<Item>)stack.getRegistryEntry()).customCreativeInventory$addTag(tag);
                         try {
-                            entries.add(item);
+                            entries.add(stack);
                         } catch (IllegalArgumentException e) {
                             LOGGER.warn("Item {} does not exist in the item registry.", entry.getItemName());
                         }
